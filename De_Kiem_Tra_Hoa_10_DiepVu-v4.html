@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điệp Vụ: Kiểm Tra Giữa Kì 1 - Hóa 10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a; 
+            --primary-light: #3b82f6;
+            --secondary: #dc2626; 
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --success: #10b981;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 15px 10px; 
+            display: flex; 
+            justify-content: center; 
+            line-height: 1.6; 
+            user-select: none; 
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+        .container { max-width: 850px; width: 100%; position: relative; }
+
+        .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); border-top: 5px solid var(--primary); }
+        .header-card { text-align: center; background: linear-gradient(135deg, #0f172a, #1e3a8a); color: white; border-top: none; }
+        .header-card h1 { margin: 0 0 5px 0; font-size: 1.8rem; text-transform: uppercase; color: #f87171; }
+        .header-card h2 { margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 500; opacity: 0.9; }
+        
+        .student-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; }
+        .student-info input { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; text-align: center;}
+
+        h3 { color: var(--primary); margin-top: 0; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; text-transform: uppercase; font-size: 1.2rem;}
+        
+        input[type="text"]:not(#studentName):not(#studentClass) { width: 100%; padding: 10px; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 15px; transition: 0.3s; font-family: 'Roboto', sans-serif;}
+        input[type="text"]:focus { border-color: var(--primary); outline: none; }
+
+        .question { margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .question-text { font-weight: bold; margin-top: 0; margin-bottom: 12px; font-size: 1.05rem; }
+
+        .options label { display: flex; align-items: center; margin-bottom: 8px; cursor: pointer; padding: 10px; border-radius: 6px; background: #fff; border: 1px solid #e5e7eb; transition: 0.2s; }
+        .options label:hover { background: #f3f4f6; }
+        .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+        
+        .tf-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e5e7eb; }
+        .tf-opts { display: flex; gap: 10px; justify-content: flex-end; }
+        .tf-opts label { background: #fff; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; font-size: 0.9rem; cursor: pointer;}
+        
+        .btn-submit { width: 100%; border: none; padding: 16px; font-size: 16px; border-radius: 30px; cursor: pointer; font-weight: bold; text-transform: uppercase; color: white; background: linear-gradient(135deg, var(--secondary), #991b1b); box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3); margin-top: 20px;}
+        
+        .timer-box { position: fixed; top: 15px; right: 15px; background: #e74c3c; color: white; padding: 10px 20px; font-size: 22px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; letter-spacing: 2px;}
+        
+        #lockScreen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); color: white; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; text-align: center; padding: 20px;}
+        #lockScreen h1 { color: #ef4444; font-size: 3rem; margin-bottom: 10px; text-transform: uppercase;}
+        #lockScreen p { font-size: 1.2rem; margin: 5px 0;}
+
+        @media(max-width: 600px) { 
+            .student-info { grid-template-columns: 1fr; } 
+            .tf-grid { grid-template-columns: 1fr; }
+            .tf-opts { justify-content: flex-start; }
+            .timer-box { top: 5px; right: 5px; font-size: 18px; padding: 8px 12px;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timer-box" id="timerBox">⏳ 15:00</div>
+
+    <div id="lockScreen">
+        <h1>🚨 BÀI THI ĐÃ BỊ KHÓA 🚨</h1>
+        <p id="lockReason" style="font-size: 1.5rem; font-weight: bold; color: #fcd34d;">Lý do: Hết thời gian làm bài</p>
+        <p>Hệ thống đã tự động thu bài và gửi kết quả về Trung tâm Chỉ huy (Giáo viên).</p>
+        <p style="margin-top: 20px; font-style: italic; color: #94a3b8;">Bạn có thể đóng tab này.</p>
+    </div>
+
+    <div class="container" id="mainContainer">
+        <!-- TRẠM CHỈ HUY -->
+        <div class="card header-card">
+            <h1>ĐỀ KIỂM TRA GIỮA KÌ 1</h1>
+            <h2>CHUYÊN ÁN HÓA HỌC 10 - NĂM HỌC 2026-2027</h2>
+            <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                <button type="button" id="btnSound" onclick="toggleSound()" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.3s;">
+                    🔊 Âm thanh: BẬT
+                </button>
+            </div>
+            <p style="font-style: italic; color: #fca5a5; font-size: 1rem; margin-top: 10px; font-weight: bold;">CẢNH BÁO: Rời khỏi màn hình hoặc chia đôi cửa sổ sẽ bị KHÓA BÀI LẬP TỨC! 🚨</p>
+            <div class="student-info">
+                <input type="text" id="studentName" name="hoTen" placeholder="Họ và tên đặc vụ..." required>
+                <input type="text" id="studentClass" name="lop" value="10A5" readonly>
+            </div>
+        </div>
+
+        <form id="quizForm">
+            <!-- ================= PHẦN I: TRẮC NGHIỆM ================= -->
+            <div id="part1-section" class="card">
+                <h3>📂 TRẠM 1: CÂU TRẮC NGHIỆM ĐA LỰA CHỌN</h3>
+
+                <div class="question check-mcq-p1" data-ans="D">
+                    <p class="question-text">Câu 1: Trong nguyên tử, hạt mang điện là</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q1" value="A"> A. electron, neutron.</label>
+                        <label><input type="radio" name="p1_q1" value="B"> B. electron.</label>
+                        <label><input type="radio" name="p1_q1" value="C"> C. proton, neutron.</label>
+                        <label><input type="radio" name="p1_q1" value="D"> D. proton, electron.</label>
+                    </div>
+                </div>
+                
+                <div class="question check-mcq-p1" data-ans="B">
+                    <p class="question-text">Câu 2: Orbital có dạng hình số 8 nổi là</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q2" value="A"> A. orbital s.</label>
+                        <label><input type="radio" name="p1_q2" value="B"> B. orbital p.</label>
+                        <label><input type="radio" name="p1_q2" value="C"> C. orbital d.</label>
+                        <label><input type="radio" name="p1_q2" value="D"> D. orbital f.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="B">
+                    <p class="question-text">Câu 3: Fluorine và hợp chất của nó được sử dụng làm chất chống sâu răng... Nguyên tử fluorine chứa 9 hạt electron và 10 hạt neutron. Tổng số hạt proton, electron và neutron là:</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q3" value="A"> A. 19.</label>
+                        <label><input type="radio" name="p1_q3" value="B"> B. 28.</label>
+                        <label><input type="radio" name="p1_q3" value="C"> C. 30.</label>
+                        <label><input type="radio" name="p1_q3" value="D"> D. 32.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="A">
+                    <p class="question-text">Câu 4: Số orbital trong các phân lớp s, p, d lần lượt bằng</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q4" value="A"> A. 1, 3, 5.</label>
+                        <label><input type="radio" name="p1_q4" value="B"> B. 1, 2, 4.</label>
+                        <label><input type="radio" name="p1_q4" value="C"> C. 3, 5, 7.</label>
+                        <label><input type="radio" name="p1_q4" value="D"> D. 1, 2, 3.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="B">
+                    <p class="question-text">Câu 5: Kí hiệu và số electron tối đa có trên lớp electron ứng với giá trị n = 2 tương ứng là</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q5" value="A"> A. Lớp L và 2e.</label>
+                        <label><input type="radio" name="p1_q5" value="B"> B. Lớp L và 8e.</label>
+                        <label><input type="radio" name="p1_q5" value="C"> C. Lớp K và 8e.</label>
+                        <label><input type="radio" name="p1_q5" value="D"> D. Lớp K và 6e.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="B">
+                    <p class="question-text">Câu 6: Cho các phát biểu sau: (1) Tất cả hạt nhân nguyên tử đều cấu tạo từ proton và neutron. (2) Khối lượng nguyên tử tập trung ở vỏ. (3) Số e bằng số p. (4) Hạt nhân chứa p và e. (5) Hạt e có khối lượng không đáng kể. Số phát biểu đúng là</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q6" value="A"> A. 1.</label>
+                        <label><input type="radio" name="p1_q6" value="B"> B. 2.</label>
+                        <label><input type="radio" name="p1_q6" value="C"> C. 3.</label>
+                        <label><input type="radio" name="p1_q6" value="D"> D. 4.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="A">
+                    <p class="question-text">Câu 7: Hạt nhân của hầu hết các nguyên tử được cấu tạo bởi các loại hạt nào sau đây?</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q7" value="A"> A. proton và neutron.</label>
+                        <label><input type="radio" name="p1_q7" value="B"> B. proton và electron.</label>
+                        <label><input type="radio" name="p1_q7" value="C"> C. electron và neutron.</label>
+                        <label><input type="radio" name="p1_q7" value="D"> D. proton, neutron và electron.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="B">
+                    <p class="question-text">Câu 8: Hạt nhân của nguyên tử nào có số hạt neutron là 12?</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q8" value="A"> A. 32/15 P.</label>
+                        <label><input type="radio" name="p1_q8" value="B"> B. 23/11 Na.</label>
+                        <label><input type="radio" name="p1_q8" value="C"> C. 39/19 K.</label>
+                        <label><input type="radio" name="p1_q8" value="D"> D. 54/26 Fe.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="B">
+                    <p class="question-text">Câu 9: Cation M³⁺ có 10 electron. Cấu hình electron của nguyên tố M là:</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q9" value="A"> A. 1s²2s²2p⁶3s²3p⁵.</label>
+                        <label><input type="radio" name="p1_q9" value="B"> B. 1s²2s²2p⁶3s²3p¹.</label>
+                        <label><input type="radio" name="p1_q9" value="C"> C. 1s²2s²2p⁶3s²3p⁶4s².</label>
+                        <label><input type="radio" name="p1_q9" value="D"> D. 1s²2s²2p³.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="A">
+                    <p class="question-text">Câu 10: Cho các kí hiệu nguyên tử: 39/19 X và 39/19 Y. Nhận xét nào sau đây KHÔNG đúng?</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q10" value="A"> A. X và Y có số khối khác nhau.</label>
+                        <label><input type="radio" name="p1_q10" value="B"> B. X và Y có cùng số electron.</label>
+                        <label><input type="radio" name="p1_q10" value="C"> C. X và Y là 2 nguyên tử đồng vị.</label>
+                        <label><input type="radio" name="p1_q10" value="D"> D. X và Y đều có 19 neutron.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="C">
+                    <p class="question-text">Câu 11: Phân lớp 3d có số electron tối đa là</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q11" value="A"> A. 6.</label>
+                        <label><input type="radio" name="p1_q11" value="B"> B. 18.</label>
+                        <label><input type="radio" name="p1_q11" value="C"> C. 10.</label>
+                        <label><input type="radio" name="p1_q11" value="D"> D. 14.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="C">
+                    <p class="question-text">Câu 12: Có các phát biểu sau: (a) Luôn có p=e=Z. (b) Tổng p và e là số khối. (c) Số khối (A) là khối lượng tuyệt đối. (d) Nguyên tử khối là nguyên tử khối trung bình các đồng vị. (e) Đồng vị cùng p khác n. Số phát biểu KHÔNG đúng là:</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <label><input type="radio" name="p1_q12" value="A"> A. 1.</label>
+                        <label><input type="radio" name="p1_q12" value="B"> B. 2.</label>
+                        <label><input type="radio" name="p1_q12" value="C"> C. 3.</label>
+                        <label><input type="radio" name="p1_q12" value="D"> D. 4.</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PHẦN II: ĐÚNG/SAI ================= -->
+            <div id="part2-section" class="card">
+                <h3>📂 TRẠM 2: PHÂN TÍCH ĐÚNG/SAI</h3>
+
+                <div class="question">
+                    <p class="question-text">Câu 1. Proton, electron và neutron là các hạt cấu tạo nên hầu hết nguyên tử.</p>
+                    <div class="tf-grid check-tf-p2" data-ans="F"><span>a. Proton và electron là hai loại hạt cấu tạo nên hạt nhân nguyên tử.</span><div class="tf-opts"><label><input type="radio" name="p2_q1a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1a" value="F"> SAI</label></div></div>
+                    <div class="tf-grid check-tf-p2" data-ans="T"><span>b. Electron mang điện tích âm và được tìm thấy ở lớp vỏ nguyên tử.</span><div class="tf-opts"><label><input type="radio" name="p2_q1b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1b" value="F"> SAI</label></div></div>
+                    <div class="tf-grid check-tf-p2" data-ans="F"><span>c. Trong nguyên tử, số proton bằng số neutron.</span><div class="tf-opts"><label><input type="radio" name="p2_q1c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1c" value="F"> SAI</label></div></div>
+                    <div class="tf-grid check-tf-p2" data-ans="F" style="border:none;"><span>d. Trong nguyên tử, khối lượng của electron xấp xỉ bằng khối lượng của neutron.</span><div class="tf-opts"><label><input type="radio" name="p2_q1d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1d" value="F"> SAI</label></div></div>
+                </div>
+
+                <div class="question">
+                    <p class="question-text">Câu 2. Nguyên tử là hạt vô cùng nhỏ tạo thành từ các hạt nhỏ hơn, gồm hạt nhân và vỏ nguyên tử.</p>
+                    <div class="tf-grid check-tf-p2" data-ans="T"><span>a. Khối lượng nguyên tử tập trung ở hạt nhân do khối lượng của electron rất nhỏ so với hạt proton và neutron.</span><div class="tf-opts"><label><input type="radio" name="p2_q2a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2a" value="F"> SAI</label></div></div>
+                    <div class="tf-grid check-tf-p2" data-ans="F"><span>b. Nguyên tố hóa học là tập hợp những nguyên tử có cùng số khối.</span><div class="tf-opts"><label><input type="radio" name="p2_q2b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2b" value="F"> SAI</label></div></div>
+                    <div class="tf-grid check-tf-p2" data-ans="T"><span>c. Trong nguyên tử số hạt proton bằng số hạt electron.</span><div class="tf-opts"><label><input type="radio" name="p2_q2c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2c" value="F"> SAI</label></div></div>
+                    <div class="tf-grid check-tf-p2" data-ans="T" style="border:none;"><span>d. Trong lớp electron thứ n có n² AO và chứa tối đa 2n² electron.</span><div class="tf-opts"><label><input type="radio" name="p2_q2d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2d" value="F"> SAI</label></div></div>
+                </div>
+            </div>
+
+            <!-- ================= PHẦN III: TRẢ LỜI NGẮN ================= -->
+            <div id="part3-section" class="card">
+                <h3>📂 TRẠM 3: ĐIỀN ĐÁP ÁN NGẮN</h3>
+
+                <div class="question">
+                    <p class="question-text">Câu 1. Nguyên tử có Z=20. Số electron ngoài cùng của nguyên tử này là bao nhiêu?</p>
+                    <input type="text" name="short_1" class="check-text final-ans" placeholder="Nhập một con số...">
+                </div>
+                <div class="question">
+                    <p class="question-text">Câu 2. Tính nguyên tử khối trung bình của lithium (Li) dựa trên phổ khối lượng: 92.5% (m/z=7) và 7.5% (m/z=6).</p>
+                    <input type="text" name="short_2" class="check-text final-ans" placeholder="Nhập đáp án...">
+                </div>
+                <div class="question">
+                    <p class="question-text">Câu 3. Nguyên tử X có tổng số hạt là 40. Tổng số hạt mang điện nhiều hơn không mang điện là 12 hạt. Xác định số hiệu nguyên tử (Z) của X.</p>
+                    <input type="text" name="short_3" class="check-text final-ans" placeholder="Nhập Z...">
+                </div>
+                <div class="question">
+                    <p class="question-text">Câu 4. Nguyên tử R tạo cation R⁺ có cấu hình phân lớp ngoài cùng là 2p⁶. Tổng số hạt mang điện trong nguyên tử R là bao nhiêu?</p>
+                    <input type="text" name="short_4" class="check-text final-ans" placeholder="Nhập số hạt mang điện...">
+                </div>
+
+                <button type="button" class="btn-submit" onclick="submitTest('Học sinh chủ động nộp bài')">🚀 NỘP BÀI KIỂM TRA</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // === URL GOOGLE SCRIPT ĐÃ CẬP NHẬT MỚI NHẤT ===
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby7pvVjBcDwN6CCYClTiBWE3iBqAONuXt1mmlPTX6K5HUaxESnSvaDjFgiuc2wN8nS7ww/exec";
+
+        // === Âm thanh ===
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let soundEnabled = true;
+
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('copy', event => {
+            event.preventDefault();
+            alert("⚠️ Không được copy!");
+        });
+
+        function initAudio() { if(!audioCtx) audioCtx = new AudioContext(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            let btn = document.getElementById('btnSound');
+            if(soundEnabled) { btn.innerHTML = '🔊 Âm thanh: BẬT'; btn.style.background = '#10b981'; initAudio(); playTone(600, 'sine', 0.1, 0.05); } 
+            else { btn.innerHTML = '🔇 Âm thanh: TẮT'; btn.style.background = '#6b7280'; }
+        }
+
+        function playTone(freq, type, duration, vol=0.1) {
+            if(!soundEnabled) return;
+            initAudio();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="radio"]').forEach(el => el.addEventListener('change', () => playTone(600, 'sine', 0.1, 0.05)));
+            document.body.addEventListener('click', initAudio, {once: true});
+        });
+
+        // ==========================================
+        // HỆ THỐNG CHỐNG GIAN LẬN & HẸN GIỜ (STRICT)
+        // ==========================================
+        let timeRemaining = 15 * 60; // 15 phút
+        let isLocked = false;
+        let initialWidth = window.innerWidth;
+
+        const timerInterval = setInterval(() => {
+            if(isLocked) return;
+            timeRemaining--;
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            document.getElementById('timerBox').innerText = `⏳ ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            if (timeRemaining <= 0) {
+                triggerLock("Hết 15 phút làm bài.");
+            }
+        }, 1000);
+
+        // 1. Chống chuyển Tab hoặc Ẩn Trình Duyệt
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && !isLocked) {
+                let name = document.getElementById('studentName').value;
+                if (!name) return; // Bỏ qua nếu chưa nhập tên (mới mở link)
+                triggerLock("Gian lận: Chuyển Tab hoặc Thoát Trình Duyệt!");
+            }
+        });
+
+        // 2. Chống click ra ngoài cửa sổ bài thi
+        window.addEventListener('blur', () => {
+            if(!isLocked) {
+                let name = document.getElementById('studentName').value;
+                if (!name) return;
+                triggerLock("Gian lận: Click sang phần mềm khác!");
+            }
+        });
+
+        // 3. Chống chia đôi màn hình / Thu nhỏ đột ngột
+        window.addEventListener('resize', () => {
+            if(!isLocked && window.innerWidth < initialWidth * 0.75) { 
+                triggerLock("Gian lận: Thu nhỏ hoặc chia đôi màn hình!");
+            }
+        });
+
+        function triggerLock(reason) {
+            isLocked = true;
+            clearInterval(timerInterval);
+            
+            // Âm thanh báo động
+            initAudio();
+            playTone(300, 'sawtooth', 1.5, 0.2);
+
+            // Giao diện Khóa
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('lockScreen').style.display = 'flex';
+            document.getElementById('lockReason').innerText = "Lý do: " + reason;
+
+            // Nộp dữ liệu tự động
+            submitTest(reason);
+        }
+
+        function submitTest(statusStr) {
+            if(statusStr === 'Học sinh chủ động nộp bài') {
+                if(!confirm("Em có chắc chắn muốn nộp bài?")) return;
+                isLocked = true;
+                clearInterval(timerInterval);
+                document.getElementById('mainContainer').style.display = 'none';
+                document.getElementById('lockScreen').style.display = 'flex';
+                document.getElementById('lockScreen').querySelector('h1').innerText = "✅ ĐÃ NỘP BÀI";
+                document.getElementById('lockScreen').querySelector('h1').style.color = "#10b981";
+                document.getElementById('lockReason').innerText = "Trạng thái: Hoàn thành tốt.";
+            }
+
+            // Gửi đầy đủ thông số cho 14 cột của Giáo viên
+            let payload = {
+                hoTen: document.getElementById('studentName').value || "Chưa nhập tên",
+                lop: document.getElementById('studentClass').value,
+                diem: 0,
+                cauDung: 0,
+                cauSai: 0,
+                cauChuaLam: 0,
+                tongSoCau: 24, // 12 trắc nghiệm + 8 ý đúng sai + 4 trả lời ngắn
+                loi_hs1: 0,
+                loi_hs2: 0,
+                loi_hs3: 0,
+                loi_hs4_mcq: 0,
+                loi_hs4_tf: 0,
+                loi_hs4_short: 0,
+                status: statusStr
+            };
+
+            // Đổi text button để báo hiệu đang gửi
+            let submitBtn = document.querySelector('.btn-submit');
+            if(submitBtn) {
+                submitBtn.innerText = "⏳ ĐANG LƯU DỮ LIỆU...";
+                submitBtn.disabled = true;
+            }
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                if(submitBtn) submitBtn.innerText = "✅ ĐÃ LƯU KẾT QUẢ THÀNH CÔNG";
+                console.log("Ghi nhận thành công");
+            }).catch(e => {
+                if(submitBtn) submitBtn.innerText = "❌ LỖI LƯU DỮ LIỆU";
+                console.error("Lỗi:", e);
+            });
+        }
+    </script>
+</body>
+</html>
